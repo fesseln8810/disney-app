@@ -43,7 +43,7 @@ async function fetchData() {
   const park = document.getElementById("park").value;
   const date = document.getElementById("date").value.replaceAll("-", "");
 
-  const url = `https://api.allorigins.win/raw?url=https://www.tokyodisneyresort.jp/${park}/daily/calendar/${date}/`;
+  const url = `https://corsproxy.io/?https://www.tokyodisneyresort.jp/${park}/daily/calendar/${date}/`;
 
   const res = await fetch(url);
   const html = await res.text();
