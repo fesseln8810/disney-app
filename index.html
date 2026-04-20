@@ -64,14 +64,10 @@ async function fetchData() {
 
     resultDiv.innerHTML = "";
 
-    const blocks = doc.querySelectorAll("li, div");
-
-    let count = 0;
-
-    blocks.forEach(block => {
 const cards = doc.querySelectorAll("section, li, div");
 
 let seen = new Set();
+let count = 0;
 
 cards.forEach(card => {
   const text = card.innerText.trim();
@@ -83,7 +79,6 @@ cards.forEach(card => {
   const times = text.match(/\d{1,2}:\d{2}/g);
   if (!times) return;
 
-  // ショー名候補（上の方のテキスト）
   const lines = text.split("\n").map(l => l.trim()).filter(l => l !== "");
 
   let name = null;
@@ -97,7 +92,7 @@ cards.forEach(card => {
 
   if (!name) return;
 
-  // 重複防止（これ重要）
+  // 重複防止
   if (seen.has(name)) return;
   seen.add(name);
 
@@ -112,11 +107,12 @@ cards.forEach(card => {
   `;
 
   resultDiv.appendChild(div);
+  count++;
 });
-    
-    if (count === 0) {
-      resultDiv.innerHTML = "スケジュールが見つかりません（未公開 or 構造変更）";
-    }
+
+if (count === 0) {
+  resultDiv.innerHTML = "スケジュールが見つかりません（未公開 or 構造変更）";
+}
 
   } catch (err) {
     console.error(err);
