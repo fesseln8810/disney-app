@@ -12,6 +12,17 @@ body { font-family: -apple-system; padding: 16px; }
   padding: 10px;
   margin: 8px 0;
 }
+body {
+  background: #f5f5f5;
+}
+
+.card {
+  border-radius: 12px;
+  padding: 12px;
+  margin: 10px 0;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
 </style>
 </head>
 
@@ -72,16 +83,33 @@ async function fetchData() {
       return;
     }
 
-    items.forEach(item => {
-  const text = item.innerText;
+resultDiv.innerHTML = "";
 
-  if (text.includes("：") || text.includes(":")) {
+const blocks = doc.querySelectorAll("li, div");
+
+blocks.forEach(block => {
+  const text = block.innerText.trim();
+
+  const times = text.match(/\d{1,2}:\d{2}/g);
+
+  if (times && text.length < 200) {
+
+    const lines = text.split("\n").filter(l => l.trim() !== "");
+    const name = lines[0];
+    const timeText = times.join(" / ");
+
     const div = document.createElement("div");
     div.className = "card";
-    div.innerHTML = text.replace(/\n/g, "<br>");
+
+    div.innerHTML = `
+      <div style="font-weight:bold; font-size:16px;">${name}</div>
+      <div style="margin-top:4px;">🕒 ${timeText}</div>
+    `;
+
     resultDiv.appendChild(div);
   }
 });
+
 
   } catch (err) {
     console.error(err);
