@@ -69,34 +69,44 @@ async function fetchData() {
     let count = 0;
 
     blocks.forEach(block => {
-      const text = block.innerText.trim();
+  const text = block.innerText.trim();
 
-      const times = text.match(/\d{1,2}:\d{2}/g);
+  // 開園時間は除外
+  if (text.includes("開園時間")) return;
 
-      if (times && text.length < 200) {
-        const lines = text.split("\n").map(l => l.trim()).filter(l => l !== "");
+  const times = text.match(/\d{1,2}:\d{2}/g);
 
-        // 時間じゃない行をショー名として取得
-        const name = lines.find(l => 
-          !l.match(/\d{1,2}:\d{2}/) && 
-          l.length > 5
-        ) || "ショー名不明";
+  if (times && text.length < 200) {
 
-        const timeText = [...new Set(times)].join(" / ");
+    // aタグ（ショー名）を優先取得
+    let name = block.querySelector("a")?.innerText;
 
-        const div = document.createElement("div");
-        div.className = "card";
+    const lines = text.split("\n").map(l => l.trim()).filter(l => l !== "");
 
-        div.innerHTML = `
-          <div style="font-weight:bold; font-size:16px;">${name}</div>
-          <div style="margin-top:4px;">🕒 ${timeText}</div>
-        `;
+    if (!name) {
+      name = lines.find(l => 
+        !l.match(/\d{1,2}:\d{2}/) && 
+        !l.includes("開園時間") &&
+        l.length > 5
+      );
+    }
 
-        resultDiv.appendChild(div);
-        count++;
-      }
-    });
+    if (!name) return;
 
+    const timeText = [...new Set(times)].join(" / ");
+
+    const div = document.createElement("div");
+    div.className = "card";
+
+    div.innerHTML = `
+      <div style="font-weight:bold; font-size:16px;">${name}</div>
+      <div style="margin-top:4px;">🕒 ${timeText}</div>
+    `;
+
+    resultDiv.appendChild(div);
+  }
+});
+    
     if (count === 0) {
       resultDiv.innerHTML = "スケジュールが見つかりません（未公開 or 構造変更）";
     }
