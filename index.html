@@ -67,8 +67,6 @@ async function fetchData() {
     }
 
     const html = await res.text();
-    resultDiv.innerHTML = html;
-    return;
     console.log("HTML取得成功");
 
     const parser = new DOMParser();
