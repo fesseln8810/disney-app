@@ -43,32 +43,49 @@ async function fetchData() {
   const park = document.getElementById("park").value;
   const date = document.getElementById("date").value.replaceAll("-", "");
 
-  const url = `https://corsproxy.io/?https://www.tokyodisneyresort.jp/${park}/daily/calendar/${date}/`;
-
-  const res = await fetch(url);
-  const html = await res.text();
-
-  console.log("取得したHTML:", html);
-
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
-
   const resultDiv = document.getElementById("result");
-  resultDiv.innerHTML = "";
+  resultDiv.innerHTML = "取得中...";
 
-  const items = doc.querySelectorAll("li");
+  try {
+    const url = `https://corsproxy.io/?https://www.tokyodisneyresort.jp/${park}/daily/calendar/${date}/`;
 
-  items.forEach(item => {
-    const name = item.querySelector(".heading")?.textContent;
-    const time = item.querySelector(".time")?.textContent;
+    const res = await fetch(url);
 
-    if (name) {
-      const div = document.createElement("div");
-      div.className = "card";
-      div.innerHTML = `<b>${name}</b><br>🕒 ${time || "未定"}`;
-      resultDiv.appendChild(div);
+    if (!res.ok) {
+      throw new Error("通信失敗");
     }
-  });
+
+    const html = await res.text();
+    console.log("HTML取得成功");
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    resultDiv.innerHTML = "";
+
+    const items = doc.querySelectorAll("li");
+
+    if (items.length === 0) {
+      resultDiv.innerHTML = "データが取得できません（構造変更 or 未公開）";
+      return;
+    }
+
+    items.forEach(item => {
+      const name = item.querySelector(".heading")?.textContent;
+      const time = item.querySelector(".time")?.textContent;
+
+      if (name) {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `<b>${name}</b><br>🕒 ${time || "未定"}`;
+        resultDiv.appendChild(div);
+      }
+    });
+
+  } catch (err) {
+    console.error(err);
+    resultDiv.innerHTML = "取得に失敗しました（通信エラー）";
+  }
 }
 </script>
 
