@@ -48,6 +48,8 @@ async function fetchData() {
   const res = await fetch(url);
   const html = await res.text();
 
+  console.log("取得したHTML:", html);
+
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
 
