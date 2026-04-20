@@ -69,42 +69,49 @@ async function fetchData() {
     let count = 0;
 
     blocks.forEach(block => {
-  const text = block.innerText.trim();
+const cards = doc.querySelectorAll("section, li, div");
+
+let seen = new Set();
+
+cards.forEach(card => {
+  const text = card.innerText.trim();
 
   // 開園時間は除外
   if (text.includes("開園時間")) return;
 
+  // 時間取得
   const times = text.match(/\d{1,2}:\d{2}/g);
+  if (!times) return;
 
-  if (times && text.length < 200) {
+  // ショー名候補（上の方のテキスト）
+  const lines = text.split("\n").map(l => l.trim()).filter(l => l !== "");
 
-    // aタグ（ショー名）を優先取得
-    let name = block.querySelector("a")?.innerText;
+  let name = null;
 
-    const lines = text.split("\n").map(l => l.trim()).filter(l => l !== "");
-
-    if (!name) {
-      name = lines.find(l => 
-        !l.match(/\d{1,2}:\d{2}/) && 
-        !l.includes("開園時間") &&
-        l.length > 5
-      );
+  for (let line of lines) {
+    if (!line.match(/\d{1,2}:\d{2}/) && line.length > 5) {
+      name = line;
+      break;
     }
-
-    if (!name) return;
-
-    const timeText = [...new Set(times)].join(" / ");
-
-    const div = document.createElement("div");
-    div.className = "card";
-
-    div.innerHTML = `
-      <div style="font-weight:bold; font-size:16px;">${name}</div>
-      <div style="margin-top:4px;">🕒 ${timeText}</div>
-    `;
-
-    resultDiv.appendChild(div);
   }
+
+  if (!name) return;
+
+  // 重複防止（これ重要）
+  if (seen.has(name)) return;
+  seen.add(name);
+
+  const timeText = [...new Set(times)].join(" / ");
+
+  const div = document.createElement("div");
+  div.className = "card";
+
+  div.innerHTML = `
+    <div style="font-weight:bold; font-size:16px;">${name}</div>
+    <div style="margin-top:4px;">🕒 ${timeText}</div>
+  `;
+
+  resultDiv.appendChild(div);
 });
     
     if (count === 0) {
