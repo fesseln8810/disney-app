@@ -71,16 +71,15 @@ async function fetchData() {
     }
 
     items.forEach(item => {
-      const name = item.querySelector(".heading")?.textContent;
-      const time = item.querySelector(".time")?.textContent;
+  const text = item.innerText;
 
-      if (name) {
-        const div = document.createElement("div");
-        div.className = "card";
-        div.innerHTML = `<b>${name}</b><br>🕒 ${time || "未定"}`;
-        resultDiv.appendChild(div);
-      }
-    });
+  if (text.includes("：") || text.includes(":")) {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = text.replace(/\n/g, "<br>");
+    resultDiv.appendChild(div);
+  }
+});
 
   } catch (err) {
     console.error(err);
