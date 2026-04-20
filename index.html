@@ -5,14 +5,9 @@
 <title>Tokyo Disney Resort Show Schedule</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body { font-family: -apple-system; padding: 16px; }
-.card {
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 10px;
-  margin: 8px 0;
-}
 body {
+  font-family: -apple-system;
+  padding: 16px;
   background: #f5f5f5;
 }
 
@@ -61,53 +56,45 @@ async function fetchData() {
     const url = `https://corsproxy.io/?https://www.tokyodisneyresort.jp/${park}/daily/calendar/${date}/`;
 
     const res = await fetch(url);
-
-    if (!res.ok) {
-      throw new Error("通信失敗");
-    }
+    if (!res.ok) throw new Error("通信失敗");
 
     const html = await res.text();
-    console.log("HTML取得成功");
-
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
 
     resultDiv.innerHTML = "";
 
-    const items = doc.querySelectorAll("li");
+    const blocks = doc.querySelectorAll("li, div");
 
-    if (items.length === 0) {
-      resultDiv.innerHTML = "データが取得できません（構造変更 or 未公開）";
-      return;
+    let count = 0;
+
+    blocks.forEach(block => {
+      const text = block.innerText.trim();
+
+      const times = text.match(/\d{1,2}:\d{2}/g);
+
+      if (times && text.length < 200) {
+        const lines = text.split("\n").filter(l => l.trim() !== "");
+
+        const name = lines[0];
+        const timeText = [...new Set(times)].join(" / "); // 重複除去
+
+        const div = document.createElement("div");
+        div.className = "card";
+
+        div.innerHTML = `
+          <div style="font-weight:bold; font-size:16px;">${name}</div>
+          <div style="margin-top:4px;">🕒 ${timeText}</div>
+        `;
+
+        resultDiv.appendChild(div);
+        count++;
+      }
+    });
+
+    if (count === 0) {
+      resultDiv.innerHTML = "スケジュールが見つかりません（未公開 or 構造変更）";
     }
-
-resultDiv.innerHTML = "";
-
-const blocks = doc.querySelectorAll("li, div");
-
-blocks.forEach(block => {
-  const text = block.innerText.trim();
-
-  const times = text.match(/\d{1,2}:\d{2}/g);
-
-  if (times && text.length < 200) {
-
-    const lines = text.split("\n").filter(l => l.trim() !== "");
-    const name = lines[0];
-    const timeText = times.join(" / ");
-
-    const div = document.createElement("div");
-    div.className = "card";
-
-    div.innerHTML = `
-      <div style="font-weight:bold; font-size:16px;">${name}</div>
-      <div style="margin-top:4px;">🕒 ${timeText}</div>
-    `;
-
-    resultDiv.appendChild(div);
-  }
-});
-
 
   } catch (err) {
     console.error(err);
