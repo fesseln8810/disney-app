@@ -64,7 +64,7 @@ async function fetchData() {
 
     resultDiv.innerHTML = "";
 
-const cards = doc.querySelectorAll("li.scheduleList__item");
+const cards = doc.querySelectorAll("li");
 
 let seen = new Set();
 let count = 0;
@@ -72,45 +72,28 @@ let count = 0;
 cards.forEach(card => {
   const text = card.innerText.trim();
 
-  // 不要なもの除外（強化版）
-  if (
-    text.includes("開園時間") ||
-    text.includes("当日のスケジュール") ||
-    text.includes("グリーティング")
-  ) return;
-
-  // 時間取得
   const times = text.match(/\d{1,2}:\d{2}/g);
   if (!times) return;
 
-  // 名前取得（aタグ優先）
-  let name = card.querySelector("a")?.innerText;
-
-  // 不要な文言を削除
-  name = name.replace(/\s+/g, " ");
-  .replace(/【.*?】/g, "") // 【環境演出】削除
-  .replace(/エントリー受付対象/g, "")
-  .replace(/ディズニー・プレミアアクセス対象/g, "")
-  .replace(/\d{1,2}:\d{2}.*/g, "") // 時間以降削除
-  .trim();
-
   const lines = text.split("\n").map(l => l.trim()).filter(l => l !== "");
 
-  if (!name) {
-    name = lines.find(l =>
-      !l.match(/\d{1,2}:\d{2}/) &&
-      l.length > 5
-    );
-  }
+  let name = lines.find(l =>
+    !l.match(/\d{1,2}:\d{2}/) &&
+    l.length > 3
+  );
 
   if (!name) return;
 
-  // 重複防止
+  // 軽くクリーン
+  name = name
+    .replace(/【.*?】/g, "")
+    .replace(/\d{1,2}:\d{2}.*/g, "")
+    .trim();
+
   if (seen.has(name)) return;
   seen.add(name);
 
-  // 時間整理（重複削除＋最大5個まで）
-  const uniqueTimes = [...new Set(times)].slice(0, 5);
+  const uniqueTimes = [...new Set(times)];
 
   const div = document.createElement("div");
   div.className = "card";
@@ -125,9 +108,8 @@ cards.forEach(card => {
 });
 
 if (count === 0) {
-  resultDiv.innerHTML = "スケジュールが見つかりません（未公開 or 構造変更）";
+  resultDiv.innerHTML = "スケジュールが見つかりません";
 }
-
   } catch (err) {
     console.error(err);
     resultDiv.innerHTML = "取得に失敗しました（通信エラー）";
