@@ -87,7 +87,7 @@ cards.forEach(card => {
   let name = card.querySelector("a")?.innerText;
 
   // 不要な文言を削除
-  name = name
+  name = name.replace(/\s+/g, " ");
   .replace(/【.*?】/g, "") // 【環境演出】削除
   .replace(/エントリー受付対象/g, "")
   .replace(/ディズニー・プレミアアクセス対象/g, "")
