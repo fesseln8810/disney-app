@@ -81,7 +81,7 @@ cards.forEach(card => {
 
   // 時間取得
   const times = text.match(/\d{1,2}:\d{2}/g);
-  if (!times || times.length > 5) return; // ←多すぎるのは除外
+  if (!times) return;
 
   // 名前取得（aタグ優先）
   let name = card.querySelector("a")?.innerText;
