@@ -61,6 +61,29 @@ async function fetchData() {
 
     resultDiv.innerHTML = "";
 
+    const timeline = document.createElement("div");
+timeline.style.position = "relative";
+timeline.style.height = "30px";
+timeline.style.marginBottom = "10px";
+
+const start = 9 * 60;
+const end = 21 * 60;
+
+for (let h = 9; h <= 21; h++) {
+  const percent = ((h * 60 - start) / (end - start)) * 100;
+
+  const label = document.createElement("div");
+  label.style.position = "absolute";
+  label.style.left = percent + "%";
+  label.style.transform = "translateX(-50%)";
+  label.style.fontSize = "10px";
+  label.innerText = `${h}:00`;
+
+  timeline.appendChild(label);
+}
+
+resultDiv.appendChild(timeline);
+
 const cards = doc.querySelectorAll("li");
 
 let seen = new Set();
@@ -112,20 +135,36 @@ const end = 21 * 60;
 const current = hour * 60 + min;
 const percent = ((current - start) / (end - start)) * 100;
 
-div.innerHTML = `
-  <div style="font-weight:bold;">${name}</div>
-  <div style="position:relative; height:20px; background:#eee; border-radius:10px; margin-top:6px;">
+const dots = uniqueTimes.map(t => {
+  const [hour, min] = t.split(":").map(Number);
+  const current = hour * 60 + min;
+  const percent = ((current - start) / (end - start)) * 100;
+
+  return `
     <div style="
       position:absolute;
       left:${percent}%;
-      top:0;
-      transform:translateX(-50%);
+      top:50%;
+      transform:translate(-50%, -50%);
       font-size:12px;
-    ">
-      ●
-    </div>
+    ">●</div>
+  `;
+}).join("");
+
+div.innerHTML = `
+  <div style="font-weight:bold;">${name}</div>
+  <div style="
+    position:relative;
+    height:24px;
+    background:#eee;
+    border-radius:12px;
+    margin-top:6px;
+  ">
+    ${dots}
   </div>
-  <div style="font-size:12px; margin-top:4px;">🕒 ${uniqueTimes.join(" / ")}</div>
+  <div style="font-size:12px; margin-top:4px;">
+    🕒 ${uniqueTimes.join(" / ")}
+  </div>
 `;
 
   resultDiv.appendChild(div);
