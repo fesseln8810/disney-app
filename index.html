@@ -86,6 +86,14 @@ cards.forEach(card => {
   // 名前取得（aタグ優先）
   let name = card.querySelector("a")?.innerText;
 
+  // 不要な文言を削除
+  name = name
+  .replace(/【.*?】/g, "") // 【環境演出】削除
+  .replace(/エントリー受付対象/g, "")
+  .replace(/ディズニー・プレミアアクセス対象/g, "")
+  .replace(/\d{1,2}:\d{2}.*/g, "") // 時間以降削除
+  .trim();
+
   const lines = text.split("\n").map(l => l.trim()).filter(l => l !== "");
 
   if (!name) {
