@@ -64,7 +64,7 @@ async function fetchData() {
 
     resultDiv.innerHTML = "";
 
-const cards = doc.querySelectorAll("section, li, div");
+const cards = doc.querySelectorAll("li");
 
 let seen = new Set();
 let count = 0;
@@ -72,26 +72,27 @@ let count = 0;
 cards.forEach(card => {
   const text = card.innerText.trim();
 
-  // 以下の項目は除外
+  // 不要なもの除外（強化版）
   if (
-  text.includes("開園時間") ||
-  text.includes("当日のスケジュール") ||
-  text.includes("グリーティング")
+    text.includes("開園時間") ||
+    text.includes("当日のスケジュール") ||
+    text.includes("グリーティング")
   ) return;
 
   // 時間取得
   const times = text.match(/\d{1,2}:\d{2}/g);
-  if (!times) return;
+  if (!times || times.length > 5) return; // ←多すぎるのは除外
+
+  // 名前取得（aタグ優先）
+  let name = card.querySelector("a")?.innerText;
 
   const lines = text.split("\n").map(l => l.trim()).filter(l => l !== "");
 
-  let name = null;
-
-  for (let line of lines) {
-    if (!line.match(/\d{1,2}:\d{2}/) && line.length > 5) {
-      name = line;
-      break;
-    }
+  if (!name) {
+    name = lines.find(l =>
+      !l.match(/\d{1,2}:\d{2}/) &&
+      l.length > 5
+    );
   }
 
   if (!name) return;
@@ -100,14 +101,15 @@ cards.forEach(card => {
   if (seen.has(name)) return;
   seen.add(name);
 
-  const timeText = [...new Set(times)].join(" / ");
+  // 時間整理（重複削除＋最大5個まで）
+  const uniqueTimes = [...new Set(times)].slice(0, 5);
 
   const div = document.createElement("div");
   div.className = "card";
 
   div.innerHTML = `
     <div style="font-weight:bold; font-size:16px;">${name}</div>
-    <div style="margin-top:4px;">🕒 ${timeText}</div>
+    <div style="margin-top:4px;">🕒 ${uniqueTimes.join(" / ")}</div>
   `;
 
   resultDiv.appendChild(div);
