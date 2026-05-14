@@ -102,10 +102,31 @@ cards.forEach(card => {
   const div = document.createElement("div");
   div.className = "card";
 
-  div.innerHTML = `
-    <div style="font-weight:bold; font-size:16px;">${name}</div>
-    <div style="margin-top:4px;">🕒 ${uniqueTimes.join(" / ")}</div>
-  `;
+  const firstTime = uniqueTimes[0]; // 一番早い時間
+const [hour, min] = firstTime.split(":").map(Number);
+
+// 9:00〜21:00を基準にする（ディズニー想定）
+const start = 9 * 60;
+const end = 21 * 60;
+
+const current = hour * 60 + min;
+const percent = ((current - start) / (end - start)) * 100;
+
+div.innerHTML = `
+  <div style="font-weight:bold;">${name}</div>
+  <div style="position:relative; height:20px; background:#eee; border-radius:10px; margin-top:6px;">
+    <div style="
+      position:absolute;
+      left:${percent}%;
+      top:0;
+      transform:translateX(-50%);
+      font-size:12px;
+    ">
+      ●
+    </div>
+  </div>
+  <div style="font-size:12px; margin-top:4px;">🕒 ${uniqueTimes.join(" / ")}</div>
+`;
 
   resultDiv.appendChild(div);
   count++;
