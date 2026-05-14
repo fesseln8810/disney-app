@@ -72,8 +72,12 @@ let count = 0;
 cards.forEach(card => {
   const text = card.innerText.trim();
 
-  // 開園時間は除外
-  if (text.includes("開園時間")) return;
+  // 以下の項目は除外
+  if (
+  text.includes("開園時間") ||
+  text.includes("当日のスケジュール") ||
+  text.includes("グリーティング")
+  ) return;
 
   // 時間取得
   const times = text.match(/\d{1,2}:\d{2}/g);
